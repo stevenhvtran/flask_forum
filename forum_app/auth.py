@@ -14,11 +14,10 @@ def get_users():
 def users():
     if request.method == 'GET':
         return jsonify({'users': get_users()})
-    return jsonify({'Error': 'HTML method must be GET or POST'})
 
 
 def exists_in_db(table_obj, table_value, value):
-    if db.session.query(table_obj.query.filter(table_value == value).exists()).scaler():
+    if db.session.query(table_obj.query.filter(table_value == value).exists()).scalar():
         return True
     return False
 
@@ -30,7 +29,7 @@ def create_user(username, password):
 
 
 def valid_username(username):
-    if not username.isalpha() or len(username) < 5 or exists_in_db(User, User.username, username):
+    if not username.isalnum() or len(username) < 5 or exists_in_db(User, User.username, username):
         return False
     return True
 
@@ -51,7 +50,7 @@ def signup():
         return jsonify({'Error': 'Invalid Password'})
     else:
         create_user(request_data['username'], request_data['password'])
-        return jsonify(f"New user {request_data['Username']} added")
+        return jsonify(f"New user {request_data['username']} added")
 
 
 def get_pwhash(username):

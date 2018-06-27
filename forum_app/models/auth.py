@@ -1,6 +1,7 @@
-from flask_httpauth import HTTPBasicAuth, md5, make_response
+from flask_httpauth import HTTPBasicAuth, make_response
 from forum_app.models.db import db, User
 from flask.json import jsonify
+from werkzeug.security import check_password_hash
 
 auth = HTTPBasicAuth()
 
@@ -17,16 +18,11 @@ def get_pw_from_db(username):
     return password
 
 
-@auth.get_password
-def get_pw(username):
+@auth.verify_password
+def verify_password(username, password):
     if username_exists(username):
-        return get_pw_from_db(username)
-    return None
-
-
-@auth.hash_password
-def hash_pw(password):
-    return md5(password).hexdigest()
+        return check_password_hash(get_pw_from_db(username), password)
+    return False
 
 
 @auth.error_handler

@@ -6,7 +6,7 @@ from forum_app.models.auth import username_exists
 from werkzeug.security import generate_password_hash
 
 
-bp = Blueprint(name='register', import_name=__name__)
+bp = Blueprint(name='register', import_name=__name__, url_prefix='/api')
 
 
 def valid_username(username):
@@ -43,5 +43,6 @@ def register():
     response = request.get_json()
     username, password = response['username'], response['password']
     if valid_username(username) and valid_password(password):
+        create_user(username, password)
         return jsonify({'message': 'Registration successful'})
     return make_response(jsonify({'error': 'Invalid username or password'}), 400)

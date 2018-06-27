@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask.json import jsonify
 from forum_app.models.auth import auth
 
-bp = Blueprint(name='forum', import_name=__name__)
+bp = Blueprint(name='forum', import_name=__name__, url_prefix='/api')
 
 
 @bp.route('/')

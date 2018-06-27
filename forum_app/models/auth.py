@@ -7,9 +7,10 @@ auth = HTTPBasicAuth()
 
 
 def username_exists(username):
-    user_query = User.query.filter(User.username == username)
-    db_query = db.session.query(user_query)
-    return db_query.exists().scalar()
+    user_query = User.query.filter(User.username == username).first()
+    if user_query:
+        return True
+    return False
 
 
 def get_pw_from_db(username):

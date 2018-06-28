@@ -26,6 +26,7 @@ def valid_password(password):
         valid_conditions = (
             len(password) > 5
             and not password.isalpha()
+            and not password.isdigit()
         )
         if valid_conditions:
             return True

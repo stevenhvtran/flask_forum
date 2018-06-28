@@ -12,13 +12,21 @@ def index():
     return jsonify({'message': f'Hello {auth.username()}'})
 
 
+def get_username_from_id(user_id):
+    user = User.query.filter(User.id == user_id).first()
+    if user:
+        return user.username
+    return None
+
+
 def post_to_dict(post_obj):
     if isinstance(post_obj, Post):
         post_dict = {
-            'id': post_obj.id,
+            'post_id': post_obj.id,
             'title': post_obj.title,
             'body': post_obj.body,
-            'author': post_obj.author_id,
+            'author_id': post_obj.author_id,
+            'author_name': get_username_from_id(post_obj.author_id),
             'url': url_for('forum.get_post', post_id=post_obj.id)
         }
         return post_dict

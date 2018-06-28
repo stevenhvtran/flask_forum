@@ -1,7 +1,7 @@
-from flask import Blueprint, url_for, abort, request
+from flask import Blueprint
 from flask.json import jsonify
-from forum_app.models.auth import auth
-from forum_app.models.db import db, Post, User
+from flask_httpauth import make_response
+from forum_app.helper_fns import *
 
 bp = Blueprint(name='forum', import_name=__name__, url_prefix='/api')
 
@@ -12,27 +12,6 @@ def index():
     return jsonify({'message': f'Hello {auth.username()}'})
 
 
-def get_username_from_id(user_id):
-    user = User.query.filter(User.id == user_id).first()
-    if user:
-        return user.username
-    return None
-
-
-def post_to_dict(post_obj):
-    if isinstance(post_obj, Post):
-        post_dict = {
-            'post_id': post_obj.id,
-            'title': post_obj.title,
-            'body': post_obj.body,
-            'author_id': post_obj.author_id,
-            'author_name': get_username_from_id(post_obj.author_id),
-            'url': url_for('forum.get_post', post_id=post_obj.id)
-        }
-        return post_dict
-    return None
-
-
 @bp.route('/posts')
 def get_all_posts():
     posts = db.session.query(Post).all()
@@ -40,50 +19,38 @@ def get_all_posts():
     return jsonify({'posts': post_list})
 
 
-@bp.route('/post/<int:post_id>')
+@bp.route('/post/<int:post_id>', methods=('GET',))
 def get_post(post_id):
-    post_query = Post.query.filter(Post.id == post_id).first()
-    if post_query:
-        return jsonify(post_to_dict(post_query))
-    return abort(404)
-
-
-def valid_title(title):
-    if isinstance(title, str):
-        if 3 < len(title) < 25:
-            return True
-    return False
-
-
-def valid_body(body):
-    if isinstance(body, str):
-        if len(body) <= 1000:
-            return True
-    return False
-
-
-def get_user_id(username):
-    user = User.query.filter(User.username == username).first()
-    if user:
-        return user.id
-    return None
-
-
-def commit_post_to_db(title, body, username):
-    author_id = get_user_id(username)
-    post = Post(title=title, body=body, author_id=author_id)
-    db.session.add(post)
-    db.session.commit()
+    post = Post.query.filter(Post.id == post_id).first()
+    if post:
+        return jsonify(post_to_dict(post))
+    return make_response(jsonify({'error': 'Post not found'}), 404)
 
 
 @bp.route('/submit', methods=('POST',))
 @auth.login_required
 def submit_post():
-    response = request.get_json()
-    title, body, username = response['title'], response['body'], auth.username()
-    if not valid_title(title):
-        return jsonify({'error': 'Invalid title'})
-    if not valid_body(body):
-        return jsonify({'error': 'Invalid body'})
-    commit_post_to_db(title, body, username)
+    errors = get_post_errors()
+    if errors:
+        return jsonify(errors)
+    commit_post_to_db()
     return jsonify({'message': 'Post created successfully'})
+
+
+@bp.route('/post/<int:post_id>', methods=('PUT', 'DELETE'))
+@auth.login_required
+def modify_post(post_id):
+    update_errors = get_post_update_errors(post_id)
+    if update_errors:
+        return make_response(update_errors['error_msg'], update_errors['status_code'])
+
+    if request.method == 'PUT':
+        errors = get_post_errors()
+        if errors:
+            return jsonify(errors)
+        update_post_in_db(post_id)
+        return jsonify({'message': 'Post updated successfully'})
+
+    if request.method == 'DELETE':
+        delete_post(post_id)
+        return jsonify({'message': 'Post deleted successfully'})

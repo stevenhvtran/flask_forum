@@ -11,12 +11,11 @@ def create_app():
         db.drop_all()  # drops all tables in testdb
         db.create_all()  # creates all the tables from db models
 
+        from forum_app import forum
+        app.register_blueprint(forum.bp)
+        app.add_url_rule('/', endpoint='forum.index')
 
-    from forum_app import forum
-    app.register_blueprint(forum.bp)
-    app.add_url_rule('/', endpoint='forum.index')
+        from forum_app import register
+        app.register_blueprint(register.bp)
 
-    from forum_app import register
-    app.register_blueprint(register.bp)
-
-    return app
+        return app

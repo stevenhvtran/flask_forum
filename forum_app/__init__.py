@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, url_for
 
 
 def create_app():
@@ -13,7 +13,7 @@ def create_app():
 
     from forum_app import forum
     app.register_blueprint(forum.bp)
-    app.add_url_rule('/', endpoint='index')
+    app.add_url_rule('/', endpoint='forum.index')
 
     from forum_app import register
     app.register_blueprint(register.bp)

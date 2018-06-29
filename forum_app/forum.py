@@ -21,7 +21,7 @@ def get_all_posts():
 
 @bp.route('/post/<int:post_id>', methods=('GET',))
 def get_post(post_id):
-    post = Post.query.filter(Post.id == post_id).first()
+    post = get_post_from_post_id(post_id)
     if post:
         return jsonify(post_to_dict(post))
     return make_response(jsonify({'error': 'Post not found'}), 404)

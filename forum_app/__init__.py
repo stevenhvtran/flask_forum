@@ -13,7 +13,7 @@ def create_app():
     from forum_app.models.db import db
     db.init_app(app)
     with app.test_request_context():
-        db.drop_all()  # drops all tables in database
+        # db.drop_all()  # drops all tables in database
         db.create_all()  # creates all the tables from db models
 
         from forum_app import forum

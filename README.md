@@ -1,6 +1,6 @@
 # flask_forum
 
-A forum, backend created in Flask, Python and a frontend created with JS/HTML/CSS
+A forum API backend created in Flask
 
 How to run tests:
 From directory for flask_forum run in command line:

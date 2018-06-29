@@ -42,7 +42,7 @@ def submit_post():
 def modify_post(post_id):
     update_errors = get_post_update_errors(post_id)
     if update_errors:
-        return make_response(update_errors['error_msg'], update_errors['status_code'])
+        return make_response(jsonify(update_errors['error_msg']), update_errors['status_code'])
 
     if request.method == 'PUT':
         errors = get_post_errors()

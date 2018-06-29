@@ -83,12 +83,12 @@ def get_post_update_errors(post_id):
     post = get_post_from_post_id(post_id)
     if not post:
         return dict(error_msg={'error': 'Post not found'}, status_code=404)
-    if post.username != auth.username():
+    if post.author_id != get_user_id(auth.username()):
         return dict(error_msg={'error': 'You do not have permission to edit this post'}, status_code=401)
     return None
 
 
 def delete_post(post_id):
     post = get_post_from_post_id(post_id)
-    post.delete()
+    db.session.delete(post)
     db.session.commit()

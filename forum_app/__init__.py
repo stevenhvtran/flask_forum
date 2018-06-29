@@ -1,9 +1,14 @@
 from flask import Flask
+import os
 
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_envvar('FLASK_CONFIG')
+    app.config.from_mapping({
+        'SECRET_KEY': os.environ['SECRET_KEY'],
+        'SQLALCHEMY_DATABASE_URI': os.environ['DATABASE_URL'],
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False
+    })
 
     from forum_app.models.db import db
     db.init_app(app)

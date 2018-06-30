@@ -1,7 +1,20 @@
 import pytest
 from forum_app import create_app
-from forum_app.models.db import db
-import base64
+from forum_app.models.db import db, User, Post
+from werkzeug.security import generate_password_hash
+
+
+def create_user(username, password):
+    user = User(username=username, password=generate_password_hash(password=password))
+    db.session.add(user)
+    db.session.commit()
+
+
+def create_post(title, body, author_id):
+    post = Post(title=title, body=body, author_id=author_id)
+    db.session.add(post)
+    db.session.commit()
+
 
 
 @pytest.fixture
@@ -29,7 +42,7 @@ def client_with_user():
         db.drop_all()  # drops all tables for fresh database
         db.create_all()  # creates all the tables from db models
 
-        test_client.post('/api/register', json={'username': 'test123', 'password': 'test123'})
+        create_user('test123', 'test123')
 
         yield test_client
 
@@ -45,12 +58,8 @@ def client_with_post():
         db.drop_all()  # drops all tables for fresh database
         db.create_all()  # creates all the tables from db models
 
-        test_client.post('/api/register', json={'username': 'test123', 'password': 'test123'})
-
-        valid_credentials = base64.b64encode(b'test123:test123').decode('utf-8')
-        test_client.post('/api/submit',
-                         json={'title': 'test title', 'body': 'test body'},
-                         headers={'Authorization': 'Basic ' + valid_credentials})
+        create_user('test123', 'test123')
+        create_post('test title', 'test body', 1)
 
         yield test_client
 
@@ -66,12 +75,8 @@ def client_with_post_and_two_users():
         db.drop_all()  # drops all tables for fresh database
         db.create_all()  # creates all the tables from db models
 
-        test_client.post('/api/register', json={'username': 'testuser1', 'password': 'test123'})
-        test_client.post('/api/register', json={'username': 'testuser2', 'password': 'test123'})
-
-        valid_credentials = base64.b64encode(b'testuser1:test123').decode('utf-8')
-        test_client.post('/api/submit',
-                         json={'title': 'test title', 'body': 'test body'},
-                         headers={'Authorization': 'Basic ' + valid_credentials})
+        create_user('testuser1', 'test123')
+        create_user('testuser2', 'test123')
+        create_post('test title', 'test body', 1)
 
         yield test_client

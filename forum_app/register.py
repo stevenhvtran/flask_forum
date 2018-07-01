@@ -42,8 +42,10 @@ def create_user(username, password):
 @bp.route('/register', methods=('POST',))
 def register():
     response = request.get_json()
-    username, password = response['username'], response['password']
-    if valid_username(username) and valid_password(password):
-        create_user(username, password)
-        return jsonify({'message': 'Registration successful'})
+    if response:
+        if 'username' in response.keys() and 'password' in response.keys():
+            username, password = response['username'], response['password']
+            if valid_username(username) and valid_password(password):
+                create_user(username, password)
+                return jsonify({'message': 'Registration successful'})
     return make_response(jsonify({'error': 'Invalid username or password'}), 400)

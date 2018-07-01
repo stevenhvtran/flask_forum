@@ -58,7 +58,7 @@ def test_submit_post(client_with_user):
 
 
 @pytest.mark.usefixtures('client_with_user')
-@pytest.mark.parametrize('title', [1, 'a', 'supersupersupersuperlongtitle', True])
+@pytest.mark.parametrize('title', [1, 'a', 'supersupersupersuperlongtitle', True, None, ''])
 def test_submit_post_title_error(client_with_user, title):
     valid_credentials = base64.b64encode(b'test123:test123').decode('utf-8')
     response = client_with_user.post('/api/submit',

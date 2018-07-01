@@ -1,9 +1,11 @@
 from flask import Flask
+from flask_cors import CORS
 import os
 
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_mapping({
         'SECRET_KEY': os.environ['SECRET_KEY'],
         'SQLALCHEMY_DATABASE_URI': os.environ['DATABASE_URL'],
